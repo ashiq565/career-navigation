@@ -1,4 +1,4 @@
-export type CareerPathType = 'software-dev' | 'data-science' | 'cybersecurity' | 'ai-ml' | 'cloud-computing';
+export type CareerPathType = 'software-dev' | 'data-science' | 'cybersecurity' | 'ai-ml' | 'cloud-computing' | 'product-manager';
 
 export interface SkillSet {
     [key: string]: number;
@@ -10,6 +10,9 @@ export interface UserProfile {
     goal: CareerPathType;
     experienceLevel: 'beginner' | 'intermediate' | 'advanced';
     skills: SkillSet;
+    points: number;
+    badges: string[];
+    level: number;
 }
 
 export interface AssessmentQuestion {
@@ -25,6 +28,7 @@ export interface RoadmapStep {
     description: string;
     status: 'completed' | 'current' | 'locked';
     technologies: string[];
+    projects?: string[];
 }
 
 export interface LearningResource {
@@ -34,4 +38,18 @@ export interface LearningResource {
     type: 'Course' | 'Project' | 'Docs';
     difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
     matchScore: number;
+}
+
+export interface ResumeAnalysis {
+    score: number;
+    atsCompatibility: number;
+    suggestions: string[];
+    identifiedSkills: string[];
+}
+
+export interface InterviewSession {
+    type: 'Technical' | 'Behavioral';
+    questions: string[];
+    feedback: string;
+    score: number;
 }

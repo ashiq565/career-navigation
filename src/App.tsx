@@ -20,7 +20,15 @@ import {
   ShieldCheck,
   Cloud,
   ChevronLeft,
-  GraduationCap
+  GraduationCap,
+  FileSearch,
+  MessageSquare,
+  Trophy,
+  History,
+  LayoutDashboard,
+  Search,
+  ExternalLink,
+  Github
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -36,7 +44,7 @@ import {
   CartesianGrid,
   Cell
 } from 'recharts';
-import type { CareerPathType, UserProfile } from './types';
+import type { CareerPathType, UserProfile, ResumeAnalysis, InterviewSession } from './types';
 import { CAREER_PATHS, QUESTIONS_BY_PATH, ROADMAPS, INDUSTRY_TRENDS } from './data/careerData';
 import './index.css';
 
@@ -59,7 +67,7 @@ function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [view, setView] = useState<'onboarding' | 'assessment' | 'main'>('onboarding');
 
-  // User State
+  // User State including Gamification
   const [user, setUser] = useState<UserProfile>({
     name: '',
     education: '',
@@ -71,12 +79,17 @@ function App() {
       "Advanced Concepts": 0,
       "Tools": 0,
       "Industry Prep": 0
-    }
+    },
+    points: 0,
+    level: 1,
+    badges: ['Early Bird']
   });
 
-  // Assessment State
+  // Assessment & AI Feature States
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
+  const [resumeAnalysis, setResumeAnalysis] = useState<ResumeAnalysis | null>(null);
+  const [interviewSession, setInterviewSession] = useState<InterviewSession | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -92,18 +105,37 @@ function App() {
   };
 
   const handleAssessmentComplete = (finalScore: number) => {
-    // Generate initial skills based on assessment
-    const baseValue = (finalScore / 3) * 80;
+    const baseValue = (finalScore / QUESTIONS_BY_PATH[user.goal].length) * 80;
     const newSkills = {
-      "Fundamentals": baseValue + 10,
-      "Core Skills": baseValue,
-      "Advanced Concepts": baseValue - 20 < 0 ? 5 : baseValue - 20,
-      "Tools": 40,
-      "Industry Prep": 10
+      "Fundamentals": Math.min(100, baseValue + 20),
+      "Core Skills": Math.min(100, baseValue + 5),
+      "Advanced Concepts": Math.max(5, baseValue - 25),
+      "Tools": 45,
+      "Industry Prep": 15
     };
-    setUser(prev => ({ ...prev, skills: newSkills }));
+    setUser(prev => ({
+      ...prev,
+      skills: newSkills,
+      points: prev.points + (finalScore * 150),
+      badges: [...prev.badges, 'Fast Learner']
+    }));
     setView('main');
     setActiveTab('dashboard');
+  };
+
+  const analyzeResume = () => {
+    // Mock AI Analysis
+    setResumeAnalysis({
+      score: 78,
+      atsCompatibility: 85,
+      suggestions: [
+        "Include more action verbs in your project descriptions.",
+        "Add a professional summary at the top.",
+        "Quantify your achievements (e.g., 'Improved performance by 20%')."
+      ],
+      identifiedSkills: ["React", "JavaScript", "Python", "Git"]
+    });
+    setUser(prev => ({ ...prev, points: prev.points + 50 }));
   };
 
   // --- Views ---
@@ -119,8 +151,8 @@ function App() {
         >
           <BrainCircuit size={64} color="white" />
         </motion.div>
-        <h1 style={{ fontSize: '3.5rem', fontWeight: 800, background: 'linear-gradient(to bottom, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>SkillBridge AI</h1>
-        <p className="text-muted mt-2" style={{ letterSpacing: '4px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Align Your Aspiration</p>
+        <h1 style={{ fontSize: '3.5rem', fontWeight: 800, background: 'linear-gradient(to bottom, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>CareerPath AI</h1>
+        <p className="text-muted mt-2" style={{ letterSpacing: '4px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Intelligent Career Navigation</p>
       </motion.div>
     </div>
   );
@@ -131,76 +163,63 @@ function App() {
     const [goal, setGoal] = useState<CareerPathType>('software-dev');
 
     return (
-      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="container max-w-2xl mt-20">
+      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="container max-w-4xl mt-20">
         <div className="card glass-panel p-10">
           <motion.div variants={itemVariants} className="text-center mb-10">
             <GraduationCap size={48} className="text-accent-primary mx-auto mb-4" />
-            <h2 className="text-3xl font-bold mb-2">Build Your Career DNA</h2>
-            <p className="text-muted">Tell us who you are, and where you want to go.</p>
+            <h2 className="text-4xl font-black mb-2">Build Your Career DNA</h2>
+            <p className="text-muted">Personalized intelligence tailored to your unique potential.</p>
           </motion.div>
 
-          <div className="space-y-6">
-            <motion.div variants={itemVariants} className="input-group">
-              <label className="input-label">Full Name</label>
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" className="input-field" />
-            </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="space-y-6">
+              <motion.div variants={itemVariants} className="input-group">
+                <label className="input-label">Full Name</label>
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Alex Johnson" className="input-field" />
+              </motion.div>
 
-            <motion.div variants={itemVariants} className="input-group">
-              <label className="input-label">Highest Education</label>
-              <input value={education} onChange={(e) => setEducation(e.target.value)} placeholder="e.g. B.Tech Computer Science" className="input-field" />
-            </motion.div>
+              <motion.div variants={itemVariants} className="input-group">
+                <label className="input-label">Education Status</label>
+                <input value={education} onChange={(e) => setEducation(e.target.value)} placeholder="e.g. B.Tech CSE Final Year" className="input-field" />
+              </motion.div>
 
-            <motion.div variants={itemVariants} className="input-group">
-              <label className="input-label">Target Career Domain</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+              <motion.button
+                variants={itemVariants}
+                disabled={!name || !education}
+                onClick={() => handleStartOnboarding(name, education, goal)}
+                className="btn btn-primary w-full py-5 mt-4 disabled:opacity-30 group"
+              >
+                Analyze My Potential <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </motion.button>
+            </div>
+
+            <div className="space-y-4">
+              <label className="input-label">Choose Your Target Path</label>
+              <div className="grid grid-cols-1 gap-3">
                 {(Object.entries(CAREER_PATHS) as [CareerPathType, any][]).map(([key, info]) => (
                   <button
                     key={key}
                     type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setGoal(key);
-                    }}
-                    className={`btn text-left justify-start gap-4 p-5 border-2 transition-all duration-300 rounded-[2rem] w-full relative overflow-hidden group ${goal === key
-                        ? 'border-accent-primary bg-accent-primary/20 shadow-[0_0_30px_rgba(56,189,248,0.3)] ring-2 ring-accent-primary/50'
-                        : 'border-white/5 bg-white/5 opacity-80 hover:opacity-100 hover:bg-white/10 hover:border-white/20'
-                      }`}
+                    onClick={() => setGoal(key)}
+                    className={`btn text-left justify-start gap-4 p-4 border-2 transition-all duration-300 rounded-2xl relative overflow-hidden group ${goal === key ? 'border-accent-primary bg-accent-primary/20 ring-2 ring-accent-primary/20' : 'border-white/5 bg-white/5 opacity-70 hover:opacity-100'}`}
                   >
-                    <div className={`p-3 rounded-2xl transition-colors ${goal === key ? 'bg-accent-primary text-white' : 'bg-white/10 text-muted group-hover:bg-white/20'}`}>
+                    <div className={`p-2 rounded-xl ${goal === key ? 'bg-accent-primary' : 'bg-white/10'}`}>
                       {key === 'software-dev' && <Rocket size={20} />}
                       {key === 'data-science' && <Briefcase size={20} />}
                       {key === 'cybersecurity' && <ShieldCheck size={20} />}
                       {key === 'ai-ml' && <BrainCircuit size={20} />}
                       {key === 'cloud-computing' && <Cloud size={20} />}
+                      {key === 'product-manager' && <Target size={20} />}
                     </div>
-                    <div className="flex flex-col">
-                      <span className={`font-bold text-lg leading-tight transition-colors ${goal === key ? 'text-accent-primary' : 'text-main'}`}>{info.label}</span>
-                      <span className="text-xs text-muted mt-1 opacity-80">{info.description}</span>
+                    <div>
+                      <div className="font-bold text-sm">{info.label}</div>
+                      <div className="text-[10px] opacity-60 line-clamp-1">{info.description}</div>
                     </div>
-                    {goal === key && (
-                      <motion.div
-                        layoutId="active-indicator"
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-accent-primary"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                      >
-                        <CheckCircle2 size={24} />
-                      </motion.div>
-                    )}
+                    {goal === key && <CheckCircle2 size={24} className="absolute right-4 text-accent-primary" />}
                   </button>
-
                 ))}
               </div>
-            </motion.div>
-
-            <motion.button
-              variants={itemVariants}
-              disabled={!name || !education}
-              onClick={() => handleStartOnboarding(name, education, goal)}
-              className="btn btn-primary w-full py-4 mt-6 disabled:opacity-30"
-            >
-              Analyze My Profile <ChevronRight size={18} />
-            </motion.button>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -215,7 +234,6 @@ function App() {
       let newScore = score;
       if (optionIndex === question.correctAnswer) newScore += 1;
       setScore(newScore);
-
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
@@ -224,34 +242,32 @@ function App() {
     };
 
     return (
-      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="container max-w-xl mt-20">
-        <div className="card glass-panel p-10">
+      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="container max-w-2xl mt-20">
+        <div className="card glass-panel p-10 relative overflow-hidden">
+          <div className="absolute top-0 left-0 h-1 bg-accent-primary transition-all duration-500" style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}></div>
+
           <div className="flex justify-between items-center mb-10">
-            <span className="badge-primary px-3 py-1">Initial Assessment</span>
-            <span className="text-xs text-muted">Question {currentQuestionIndex + 1} of {questions.length}</span>
+            <span className="badge-primary px-4 py-1 flex items-center gap-2"><Trophy size={14} /> Domain Assessment</span>
+            <span className="text-sm font-bold text-muted">{currentQuestionIndex + 1} / {questions.length}</span>
           </div>
 
-          <motion.div key={question.id} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-            <h2 className="text-2xl font-bold mb-8 leading-tight">{question.question}</h2>
-            <div className="space-y-4">
-              {question.options.map((option, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleAnswer(idx)}
-                  className="btn btn-secondary w-full text-left justify-start p-6 rounded-[1.5rem] hover:border-accent-primary hover:bg-accent-primary/5 transition-all duration-300 group relative border-2 border-white/5"
-                >
-                  <span className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mr-4 group-hover:bg-accent-primary group-hover:text-white transition-all font-bold">{String.fromCharCode(65 + idx)}</span>
-                  <span className="text-lg font-medium">{option}</span>
-                </button>
-
-              ))}
-            </div>
-          </motion.div>
-
-          <div className="mt-12 h-1 w-full bg-white/5 rounded-full overflow-hidden">
-            <div className="h-full bg-accent-primary transition-all duration-500" style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}></div>
-          </div>
+          <AnimatePresence mode="wait">
+            <motion.div key={currentQuestionIndex} initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -50, opacity: 0 }}>
+              <h2 className="text-3xl font-bold mb-10 leading-tight">"{question.question}"</h2>
+              <div className="grid grid-cols-1 gap-4">
+                {question.options.map((option, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleAnswer(idx)}
+                    className="btn btn-secondary w-full text-left justify-start p-6 rounded-2xl hover:border-accent-primary hover:bg-accent-primary/5 group"
+                  >
+                    <span className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mr-4 group-hover:bg-accent-primary transition-colors font-bold">{String.fromCharCode(65 + idx)}</span>
+                    <span className="text-lg">{option}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </motion.div>
     );
@@ -267,137 +283,173 @@ function App() {
 
     return (
       <div className="app-wrapper min-h-screen">
-        <nav className="glass-panel sticky top-0 z-[100] border-none" style={{ background: 'rgba(2, 6, 23, 0.8)' }}>
-          <div className="container flex items-center justify-between h-20">
-            <div className="flex items-center gap-3">
-              <div className="badge-primary p-2 rounded-xl"><Compass size={24} /></div>
-              <span className="font-bold text-xl uppercase tracking-tighter">SkillBridge <span className="text-accent-primary">AI</span></span>
+        {/* Navigation */}
+        <nav className="glass-panel sticky top-0 z-[100] border-none shadow-2xl" style={{ background: 'rgba(2, 6, 23, 0.9)' }}>
+          <div className="container flex items-center justify-between h-24">
+            <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setActiveTab('dashboard')}>
+              <div className="badge-primary p-3 rounded-2xl group-hover:scale-110 transition-transform"><BrainCircuit size={32} /></div>
+              <span className="font-extrabold text-2xl tracking-tighter">CareerPath <span className="text-accent-primary">AI</span></span>
             </div>
 
-            <div className="flex gap-2">
-              {['dashboard', 'path', 'recommendations'].map(tab => (
+            <div className="flex gap-4">
+              {[
+                { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+                { id: 'path', icon: Map, label: 'Roadmap' },
+                { id: 'tools', icon: Zap, label: 'AI Tools' },
+                { id: 'recommendations', icon: BookOpen, label: 'Learning' }
+              ].map(tab => (
                 <button
-                  key={tab}
-                  className={`btn ${activeTab === tab ? 'btn-primary' : 'btn-icon'}`}
-                  onClick={() => setActiveTab(tab)}
-                  style={{ borderRadius: '12px' }}
+                  key={tab.id}
+                  className={`btn border-none transition-all ${activeTab === tab.id ? 'btn-primary text-white shadow-lg' : 'text-muted hover:text-white hover:bg-white/5'}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{ borderRadius: '16px', padding: '0.75rem 1.5rem' }}
                 >
-                  {tab === 'dashboard' && <Target size={18} />}
-                  {tab === 'path' && <Map size={18} />}
-                  {tab === 'recommendations' && <BookOpen size={18} />}
-                  <span className={activeTab === tab ? 'block ml-2' : 'hidden'}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</span>
+                  <tab.icon size={20} className={activeTab === tab.id ? 'mr-2' : ''} />
+                  <span className={activeTab === tab.id ? 'inline font-bold' : 'hidden'}>{tab.label}</span>
                 </button>
               ))}
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden-mobile">
-                <div className="font-bold text-sm">{user.name}</div>
-                <div className="text-[10px] text-accent-primary font-bold">MATCH: {CAREER_PATHS[user.goal].label}</div>
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col items-end">
+                <div className="flex items-center gap-2">
+                  <Trophy size={16} className="text-status-warning" />
+                  <span className="font-black text-main">{user.points} XP</span>
+                </div>
+                <div className="text-[10px] text-accent-primary font-bold uppercase tracking-widest">Level {user.level} Navigator</div>
               </div>
-              <div className="avatar glow-effect w-10 h-10 rounded-xl bg-accent-primary flex items-center justify-center font-bold">AD</div>
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-primary to-accent-secondary p-0.5 shadow-lg overflow-hidden">
+                <div className="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center font-black text-white">AD</div>
+              </div>
             </div>
           </div>
         </nav>
 
-        <main className="container py-10">
+        <main className="container py-12">
           <AnimatePresence mode="wait">
             {activeTab === 'dashboard' && (
-              <motion.div key="db" variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-12 gap-6">
-                <div className="col-span-12 card glass-panel shadow-none border-white/5 bg-transparent p-0 mb-6 flex flex-col md:flex-row justify-between items-end gap-6">
-                  <div className="max-w-2xl">
-                    <h2 className="text-4xl font-black mb-2">Accelerating your {CAREER_PATHS[user.goal].label} journey.</h2>
-                    <p className="text-muted">Targeting roles at <span className="text-main font-semibold">Google, Meta, and Scale AI</span> based on your current performance trends.</p>
+              <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-12 gap-8">
+                {/* Welcome Card */}
+                <div className="col-span-12 card glass-panel bg-transparent border-none p-0 flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="max-w-3xl">
+                    <h2 className="text-5xl font-black mb-4 tracking-tight">Focus on Growth, {user.name.split(' ')[0]}.</h2>
+                    <p className="text-xl text-muted leading-relaxed">Your potential match for <span className="text-main font-bold border-b-2 border-accent-primary">{CAREER_PATHS[user.goal].label}</span> is increasing. We've detected new high-priority skills in the market.</p>
                   </div>
-                  <div className="flex gap-3">
-                    <div className="badge-primary flex items-center gap-2 px-6 py-3 rounded-2xl"><Zap size={20} className="animate-pulse" /> Intelligence Optimized</div>
+                  <div className="badge-primary p-6 rounded-3xl flex items-center gap-4 bg-accent-primary/5 hover:bg-accent-primary/10 transition-colors border-accent-primary/20">
+                    <Zap size={32} className="text-accent-primary animate-float" />
+                    <div>
+                      <div className="text-xs uppercase font-black opacity-60">Insight Mode</div>
+                      <div className="text-lg font-bold">Optimal Path Engaged</div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Skill Radar */}
-                <div className="col-span-12 lg:col-span-7 card glass-panel">
-                  <div className="flex justify-between items-center mb-8">
-                    <h3 className="text-xl font-bold flex items-center gap-2"><Target className="text-accent-primary" /> Skill Architecture</h3>
-                    <div className="text-[10px] uppercase tracking-widest font-black text-muted">Assessment Based Profile</div>
-                  </div>
-                  <div style={{ height: '350px', width: '100%' }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                        <PolarGrid stroke="rgba(255,255,255,0.05)" />
-                        <PolarAngleAxis dataKey="skill" tick={{ fill: 'var(--text-muted)', fontSize: 13 }} />
-                        <RechartsTooltip contentStyle={{ backgroundColor: 'var(--bg-card)', border: 'none', borderRadius: '16px' }} />
-                        <Radar name="Your Profile" dataKey="current" stroke="var(--accent-primary)" fill="var(--accent-primary)" fillOpacity={0.4} />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-                {/* Readiness */}
-                <div className="col-span-12 lg:col-span-5 card glass-panel shimmer">
-                  <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><Award className="text-accent-secondary" /> Readiness Score</h3>
-                  <div className="flex flex-col items-center">
-                    <div className="relative w-48 h-48 flex items-center justify-center">
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="96" cy="96" r="88" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="12" />
-                        <circle cx="96" cy="96" r="88" fill="none" stroke="var(--accent-secondary)" strokeWidth="12" strokeDasharray="552.9" strokeDashoffset={552.9 - (552.9 * (score / 3 * 100)) / 100} strokeLinecap="round" />
-                      </svg>
-                      <div className="absolute text-center">
-                        <div className="text-5xl font-black">{Math.round(score / 3 * 100)}%</div>
-                        <div className="text-[10px] uppercase font-bold text-muted">Initial Match</div>
+                <div className="col-span-12 lg:col-span-12 card glass-panel">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                      <h3 className="text-2xl font-black mb-6 flex items-center gap-3"><Target size={28} className="text-accent-primary" /> Skill Architecture</h3>
+                      <div className="space-y-6">
+                        {Object.entries(user.skills).map(([skill, value]) => (
+                          <div key={skill} className="space-y-2">
+                            <div className="flex justify-between text-sm font-bold">
+                              <span>{skill}</span>
+                              <span className="text-accent-primary">{value}%</span>
+                            </div>
+                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                              <motion.div initial={{ width: 0 }} animate={{ width: `${value}%` }} className="h-full bg-gradient-to-r from-accent-primary to-accent-secondary" />
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
-                  <div className="mt-8 space-y-4">
-                    <p className="text-sm text-center text-muted">You have a strong foundation in <span className="text-white">{user.goal.split('-')[0]} fundamentals</span>, but need to bridge gap in <span className="text-accent-primary">Advanced Concepts</span>.</p>
-                    <button className="btn btn-primary w-full" onClick={() => setActiveTab('path')}>Explore Roadmap <ChevronRight size={16} /></button>
+                    <div style={{ height: '400px' }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                          <PolarGrid stroke="rgba(255,255,255,0.05)" />
+                          <PolarAngleAxis dataKey="skill" tick={{ fill: 'var(--text-muted)', fontSize: 13 }} />
+                          <Radar name="Your Profile" dataKey="current" stroke="var(--accent-primary)" fill="var(--accent-primary)" fillOpacity={0.4} />
+                        </RadarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
 
-                {/* Trends */}
-                <div className="col-span-12 card glass-panel">
-                  <div className="flex justify-between items-center mb-8">
-                    <div>
-                      <h3 className="text-xl font-bold flex items-center gap-2"><TrendingUp className="text-accent-tertiary" /> Market Intelligence</h3>
-                      <p className="text-sm text-muted">Demand trends in {CAREER_PATHS[user.goal].label}</p>
-                    </div>
-                    <div className="badge-primary px-4 py-2">LIVE DATA</div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-                    {INDUSTRY_TRENDS.slice(0, 5).map((trend, i) => (
-                      <div key={i} className="p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-accent-tertiary/30 transition-all hover:-translate-y-1">
-                        <div className="text-2xl font-black text-accent-tertiary mb-1">{trend.growth}</div>
-                        <div className="text-sm font-bold text-main mb-3">{trend.name}</div>
-                        <div className="h-1 w-full bg-white/5 rounded-full"><div className="h-full bg-accent-tertiary" style={{ width: `${trend.demand}%` }}></div></div>
+                {/* Badges & Gamification */}
+                <div className="col-span-12 lg:col-span-4 card glass-panel shadow-none bg-accent-secondary/5 border-accent-secondary/20">
+                  <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><Award size={24} className="text-accent-secondary" /> Achievements</h3>
+                  <div className="flex flex-wrap gap-4">
+                    {user.badges.map(badge => (
+                      <div key={badge} className="px-6 py-4 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-2 hover:bg-white/10 transition-all hover:-translate-y-1">
+                        <Trophy size={32} className="text-status-warning" />
+                        <span className="text-xs font-black text-center">{badge}</span>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                {/* Trends Bar Chart */}
+                <div className="col-span-12 lg:col-span-8 card glass-panel">
+                  <div className="flex justify-between items-center mb-8">
+                    <div>
+                      <h3 className="text-xl font-bold flex items-center gap-2"><TrendingUp size={24} className="text-accent-tertiary" /> Market Intelligence</h3>
+                      <p className="text-sm text-muted">Skill demand in {CAREER_PATHS[user.goal].label}</p>
+                    </div>
+                    <span className="badge-primary px-4 py-1">LIVE DATA</span>
+                  </div>
+                  <div style={{ height: '250px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={INDUSTRY_TRENDS}>
+                        <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                        <YAxis hide />
+                        <RechartsTooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'var(--bg-card)', border: 'none', borderRadius: '12px' }} />
+                        <Bar dataKey="demand" radius={[10, 10, 0, 0]} barSize={40}>
+                          {INDUSTRY_TRENDS.map((_, i) => <Cell key={i} fill={i % 2 === 0 ? 'var(--accent-primary)' : 'var(--accent-secondary)'} fillOpacity={0.8} />)}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
               </motion.div>
             )}
 
             {activeTab === 'path' && (
-              <motion.div key="path" variants={containerVariants} initial="hidden" animate="visible" className="max-w-4xl mx-auto">
+              <motion.div variants={containerVariants} initial="hidden" animate="visible" className="max-w-4xl mx-auto">
                 <div className="text-center mb-16">
-                  <div className="badge-primary mb-4">SEQUENTIAL GROWTH</div>
-                  <h2 className="text-4xl font-extrabold mb-4">Structured {CAREER_PATHS[user.goal].label} Roadmap</h2>
-                  <p className="text-muted">Personalized path for <span className="text-main font-bold">{user.name}</span> based on {user.education} background.</p>
+                  <div className="badge-primary px-6 py-2 mb-4 rounded-full">INTELLIGENT SEQUENCING</div>
+                  <h2 className="text-5xl font-black mb-4">Your Personalized Roadmap</h2>
+                  <p className="text-xl text-muted">Bridging the gap from {user.education} background to {CAREER_PATHS[user.goal].label} Lead.</p>
                 </div>
 
-                <div className="relative space-y-12">
-                  <div className="absolute left-[39px] top-6 bottom-6 w-1 bg-white/5 rounded-full"></div>
+                <div className="relative space-y-16">
+                  <div className="absolute left-[39px] top-8 bottom-8 w-1 bg-gradient-to-b from-status-success via-accent-primary to-white/5 rounded-full" />
                   {roadmap.map((step, idx) => (
-                    <motion.div key={idx} variants={itemVariants} className="flex gap-8 group">
-                      <div className={`w-20 h-20 rounded-3xl shrink-0 flex items-center justify-center border-2 transition-all group-hover:scale-110 ${step.status === 'completed' ? 'bg-status-success/20 border-status-success text-status-success' : step.status === 'current' ? 'bg-accent-primary/20 border-accent-primary text-accent-primary shadow-[0_0_20px_rgba(56,189,248,0.3)]' : 'bg-white/5 border-white/10 text-muted opacity-50'}`}>
-                        {step.status === 'completed' ? <CheckCircle2 size={36} /> : step.status === 'current' ? <Zap size={36} className="animate-float" /> : <ShieldCheck size={30} />}
+                    <motion.div key={idx} variants={itemVariants} className="flex gap-10 group">
+                      <div className={`w-20 h-20 rounded-[2rem] shrink-0 border-4 flex items-center justify-center transition-all group-hover:scale-110 ${step.status === 'completed' ? 'bg-status-success/20 border-status-success text-status-success' : step.status === 'current' ? 'bg-accent-primary/20 border-accent-primary text-accent-primary shadow-glow' : 'bg-white/5 border-white/10 text-muted opacity-40'}`}>
+                        {step.status === 'completed' ? <CheckCircle2 size={40} /> : step.status === 'current' ? <Zap size={40} className="animate-float" /> : <ShieldCheck size={32} />}
                       </div>
-                      <div className={`flex-1 card glass-panel transition-all ${step.status === 'current' ? 'border-accent-primary/50 shadow-2xl scale-[1.02]' : 'opacity-80'}`}>
-                        <div className="flex justify-between items-center mb-3">
-                          <h4 className="text-xl font-bold">{step.title}</h4>
-                          <span className={`badge uppercase text-[10px] ${step.status === 'completed' ? 'badge-success' : step.status === 'current' ? 'badge-primary animate-pulse' : 'text-muted'}`}>{step.status}</span>
+                      <div className={`flex-1 card glass-panel p-8 transition-all ${step.status === 'current' ? 'border-accent-primary shadow-[0_30px_60px_-15px_rgba(56,189,248,0.3)] scale-[1.03]' : 'opacity-80'}`}>
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="text-2xl font-black">{step.title}</h4>
+                          <span className={`badge px-4 py-1.5 rounded-full font-black text-[10px] ${step.status === 'completed' ? 'badge-success' : step.status === 'current' ? 'badge-primary' : 'bg-white/5 text-muted'}`}>{step.status.toUpperCase()}</span>
                         </div>
-                        <p className="text-muted mb-4">{step.description}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {step.technologies.map(tech => <span key={tech} className="bg-white/5 px-3 py-1 rounded-lg border border-white/10 text-[10px] font-bold text-accent-primary uppercase tracking-widest">{tech}</span>)}
+                        <p className="text-muted text-lg leading-relaxed mb-6">{step.description}</p>
+
+                        <div className="grid grid-cols-2 gap-6">
+                          <div>
+                            <div className="text-[10px] uppercase font-black text-accent-primary mb-3 tracking-widest">Stack Core</div>
+                            <div className="flex flex-wrap gap-2">
+                              {step.technologies.map(t => <span key={t} className="px-3 py-1.5 rounded-xl bg-accent-primary/5 border border-accent-primary/20 text-[10px] font-bold text-accent-primary">{t}</span>)}
+                            </div>
+                          </div>
+                          {step.projects && (
+                            <div>
+                              <div className="text-[10px] uppercase font-black text-status-warning mb-3 tracking-widest">Applied Projects</div>
+                              <div className="flex flex-wrap gap-2">
+                                {step.projects.map(p => <span key={p} className="px-3 py-1.5 rounded-xl bg-status-warning/5 border border-status-warning/20 text-[10px] font-bold text-status-warning">{p}</span>)}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -406,55 +458,201 @@ function App() {
               </motion.div>
             )}
 
+            {activeTab === 'tools' && (
+              <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-12 gap-8">
+                {/* AI Resume Analyzer */}
+                <div className="col-span-12 lg:col-span-6 card glass-panel">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="p-4 bg-accent-primary/10 rounded-[2rem]"><FileSearch size={32} className="text-accent-primary" /></div>
+                    <h3 className="text-2xl font-black">AI Resume Analyzer</h3>
+                  </div>
+
+                  {!resumeAnalysis ? (
+                    <div className="p-12 border-2 border-dashed border-white/10 rounded-[2.5rem] flex flex-col items-center justify-center gap-6 group hover:border-accent-primary transition-all cursor-pointer">
+                      <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-accent-primary/10"><Search size={32} className="text-muted group-hover:text-accent-primary" /></div>
+                      <div className="text-center">
+                        <div className="font-bold text-lg">Click to Upload Resume</div>
+                        <div className="text-sm text-muted">Supporting PDF, DOCX • Max 5MB</div>
+                      </div>
+                      <button onClick={analyzeResume} className="btn btn-secondary py-3 px-8 rounded-2xl">Start Mock Analysis</button>
+                    </div>
+                  ) : (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-6 rounded-[2rem] bg-white/5 border border-white/5 text-center">
+                          <div className="text-4xl font-black text-accent-primary">{resumeAnalysis.score}</div>
+                          <div className="text-xs uppercase font-bold text-muted mt-1">Impact Score</div>
+                        </div>
+                        <div className="p-6 rounded-[2rem] bg-white/5 border border-white/5 text-center">
+                          <div className="text-4xl font-black text-accent-tertiary">{resumeAnalysis.atsCompatibility}%</div>
+                          <div className="text-xs uppercase font-bold text-muted mt-1">ATS Optimization</div>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <h4 className="font-bold flex items-center gap-2"><Zap size={18} className="text-status-warning" /> Critical Fixes</h4>
+                        {resumeAnalysis.suggestions.map((s, i) => (
+                          <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border-l-4 border-status-warning">
+                            <div className="p-1"><AlertCircle size={16} className="text-status-warning" /></div>
+                            <span className="text-sm">{s}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* AI Interview Prep */}
+                <div className="col-span-12 lg:col-span-6 card glass-panel">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="p-4 bg-accent-secondary/10 rounded-[2rem]"><MessageSquare size={32} className="text-accent-secondary" /></div>
+                    <h3 className="text-2xl font-black">AI Interview Assistant</h3>
+                  </div>
+                  <div className="relative p-8 rounded-[2.5rem] bg-gradient-to-br from-accent-secondary/10 to-transparent border border-white/5 overflow-hidden">
+                    <div className="absolute top-0 right-0 p-6 opacity-10"><BrainCircuit size={120} /></div>
+                    <h4 className="text-lg font-bold mb-4">Simulate Round 1: Technical Diagnostic</h4>
+                    <p className="text-muted text-sm leading-relaxed mb-8">Role-specific interaction focusing on {user.goal}. Receive real-time feedback on confidence, articulation, and technical depth.</p>
+                    <div className="flex gap-4">
+                      <button className="btn btn-primary flex-1 py-4 rounded-2xl">Launch Voice AI</button>
+                      <button className="btn btn-secondary p-4 rounded-2xl"><History size={24} /></button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mentor Platform Preview */}
+                <div className="col-span-12 card glass-panel flex flex-col md:flex-row items-center gap-10 p-12" style={{ borderLeft: '12px solid var(--accent-tertiary)' }}>
+                  <div className="flex -space-x-4">
+                    {[1, 2, 3].map(i => <div key={i} className="w-20 h-20 rounded-full border-4 border-slate-900 bg-accent-tertiary flex items-center justify-center font-black text-2xl text-slate-900">M{i}</div>)}
+                  </div>
+                  <div className="flex-1 text-center md:text-left">
+                    <h3 className="text-3xl font-black mb-2">Connect with Global Mentors</h3>
+                    <p className="text-muted text-lg">Verified professionals from <span className="text-main font-bold">AWS, OpenAI, and NVIDIA</span> are ready to review your trajectory.</p>
+                  </div>
+                  <button className="btn btn-primary px-10 py-5 rounded-[2rem] shadow-[0_15px_30px_rgba(45,212,191,0.2)]">Book AI Match Séance</button>
+                </div>
+              </motion.div>
+            )}
+
             {activeTab === 'recommendations' && (
-              <motion.div key="rec" variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
-                <div className="bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 p-10 rounded-[40px] border border-white/10">
-                  <h2 className="text-3xl font-black mb-2">Curated Skill Bridge</h2>
-                  <p className="text-muted">Resources and projects strategically selected to reduce your hiring turnaround time.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="card glass-panel group hover:border-accent-primary/50 transition-all">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="p-3 bg-accent-primary/10 rounded-2xl"><BookOpen size={24} className="text-accent-primary" /></div>
-                      <h3 className="text-xl font-bold">Top Verified Resource</h3>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="p-4 rounded-2xl bg-white/5 border border-white/5 group-hover:bg-white/10 transition-colors">
-                        <div className="font-bold mb-1">Advanced {user.goal === 'software-dev' ? 'System Design' : 'Data Engineering'} Course</div>
-                        <div className="text-xs text-muted">Provided by Industry Experts • 8 Weeks</div>
-                        <button className="btn btn-primary w-full mt-4 py-2 text-sm">Enroll Now <ChevronRight size={14} /></button>
-                      </div>
-                    </div>
+              <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-10">
+                <div className="bg-mesh opacity-20" />
+                <div className="flex flex-col md:flex-row justify-between items-end gap-6">
+                  <div className="max-w-2xl">
+                    <h2 className="text-5xl font-black mb-2">Curated Bridge.</h2>
+                    <p className="text-xl text-muted">High-impact resources mapped to your current {user.experienceLevel} performance.</p>
                   </div>
-
-                  <div className="card glass-panel group hover:border-status-success/50 transition-all">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="p-3 bg-status-success/10 rounded-2xl"><Rocket size={24} className="text-status-success" /></div>
-                      <h3 className="text-xl font-bold">Portfolio Project</h3>
-                    </div>
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                      <div className="font-bold mb-1">Scalable {user.goal.split('-')[0].toUpperCase()} Application</div>
-                      <p className="text-xs text-muted mb-4">Build and deploy a full-scale platform demonstrating {user.goal} principles.</p>
-                      <div className="flex gap-2">
-                        <span className="badge badge-success text-[8px]">Hiring Bonus</span>
-                        <span className="badge badge-primary text-[8px]">PRO Portfolio</span>
-                      </div>
-                    </div>
+                  <div className="flex gap-2">
+                    {['All', 'Courses', 'Projects', 'Documentation'].map(f => <button key={f} className="px-5 py-2 rounded-full border border-white/10 text-xs font-bold hover:bg-white/5">{f}</button>)}
                   </div>
                 </div>
 
-                <div className="card glass-panel flex items-start gap-8 p-10" style={{ borderLeft: '12px solid var(--accent-primary)' }}>
-                  <div className="p-4 bg-accent-primary/10 rounded-2xl shrink-0"><AlertCircle className="text-accent-primary" size={32} /></div>
-                  <div>
-                    <h4 className="text-2xl font-black mb-2">AI Reasoner Insight</h4>
-                    <p className="text-muted leading-relaxed">Based on your {user.education} background and assessment performance, we recommend focusing on <span className="text-main font-bold">Practical Infrastructure</span>. Recent trends in {CAREER_PATHS[user.goal].label} show that 85% of interview blocks at Tier-1 companies now prioritize architecture over syntax mastery.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="card glass-panel group hover:-translate-y-2 transition-all p-8 border-t-8 border-accent-primary">
+                    <div className="flex justify-between mb-8">
+                      <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-accent-primary/20 transition-colors"><BookOpen size={28} className="text-accent-primary" /></div>
+                      <div className="text-right">
+                        <div className="text-[10px] font-black opacity-40 uppercase">Expert Course</div>
+                        <div className="text-main font-bold">98% Match</div>
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold mb-4">Complete {CAREER_PATHS[user.goal].label} Masterclass</h4>
+                    <p className="text-sm text-muted line-clamp-2 mb-8">Deep dive into industry-standard practices and advanced architectural patterns used in modern production environments.</p>
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-xs text-muted"><Globe size={14} /> SkillBridge Premium</span>
+                      <button className="p-3 rounded-xl bg-white/5 hover:bg-white/10"><ExternalLink size={20} /></button>
+                    </div>
+                  </div>
+
+                  <div className="card glass-panel group hover:-translate-y-2 transition-all p-8 border-t-8 border-status-warning">
+                    <div className="flex justify-between mb-8">
+                      <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-status-warning/20 transition-colors"><Zap size={28} className="text-status-warning" /></div>
+                      <div className="text-right">
+                        <div className="text-[10px] font-black opacity-40 uppercase">High ROI Project</div>
+                        <div className="text-main font-bold">New Challenge</div>
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold mb-4">Real-world {user.goal === 'software-dev' ? 'E-commerce API' : 'Neural Classifier'}</h4>
+                    <p className="text-sm text-muted line-clamp-2 mb-8">Implement a fully functional system that solves real user problems. Great for demonstrating end-to-end expertise.</p>
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-xs text-muted"><Github size={14} /> Starter Template</span>
+                      <button className="btn btn-primary py-2 px-6 rounded-xl text-sm">Fork Project</button>
+                    </div>
+                  </div>
+
+                  <div className="card glass-panel group hover:-translate-y-2 transition-all p-8 border-t-8 border-accent-secondary">
+                    <div className="flex justify-between mb-8">
+                      <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-accent-secondary/20 transition-colors"><FileSearch size={28} className="text-accent-secondary" /></div>
+                      <div className="text-right">
+                        <div className="text-[10px] font-black opacity-40 uppercase">Technical Docs</div>
+                        <div className="text-main font-bold">Reference</div>
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold mb-4">Core Architectural Patterns</h4>
+                    <p className="text-sm text-muted line-clamp-2 mb-8">Master the designs that define successful software products, from microservices to event-driven architectures.</p>
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-xs text-muted"><LayoutDashboard size={14} /> Official Documentation</span>
+                      <button className="p-3 rounded-xl bg-white/5 hover:bg-white/10"><ExternalLink size={20} /></button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI Reasoner Footer */}
+                <div className="card glass-panel overflow-hidden relative p-12" style={{ borderLeft: '12px solid var(--accent-primary)', background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.1), transparent)' }}>
+                  <div className="absolute -top-10 -right-10 opacity-5"><BrainCircuit size={300} /></div>
+                  <div className="flex items-start gap-10">
+                    <div className="p-5 bg-accent-primary/20 rounded-3xl shrink-0 animate-float"><Stars size={40} className="text-accent-primary" /></div>
+                    <div>
+                      <h3 className="text-3xl font-black mb-4">AI Reasoning Intelligence</h3>
+                      <p className="text-xl text-muted leading-relaxed max-w-4xl">
+                        We analyzed <span className="text-main font-bold">14,000+ top-tier job descriptions</span> and found that roles in {CAREER_PATHS[user.goal].label} currently prioritize <span className="text-accent-primary font-black uppercase">System Versatility</span> over specific syntax. Our recommendations minimize your skill gap while maximizing your "Employability Index" by an estimated <span className="text-status-success font-black">45% within 12 weeks</span>.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </main>
+
+        <footer className="container py-20 border-t border-white/5 mt-20">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-muted">
+            <div className="col-span-1 md:col-span-2 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="badge-primary p-2 rounded-xl"><BrainCircuit size={24} /></div>
+                <span className="font-extrabold text-2xl tracking-tighter text-white">CareerPath AI</span>
+              </div>
+              <p className="max-w-md leading-relaxed text-lg">Empowering the next generation of industry-ready professionals through personalized AI intelligence and structured skill development.</p>
+              <div className="flex gap-4">
+                {[Github, Globe, MessageSquare].map((Icon, i) => <button key={i} className="p-4 rounded-2xl bg-white/5 hover:bg-accent-primary/10 transition-colors"><Icon size={24} /></button>)}
+              </div>
+            </div>
+            <div>
+              <h4 className="font-black text-white mb-8 uppercase tracking-widest text-sm">Platform</h4>
+              <ul className="space-y-4 font-bold">
+                <li className="hover:text-accent-primary cursor-pointer transition-colors">Career Radar</li>
+                <li className="hover:text-accent-primary cursor-pointer transition-colors">Skill Assessment</li>
+                <li className="hover:text-accent-primary cursor-pointer transition-colors">Roadmap Engine</li>
+                <li className="hover:text-accent-primary cursor-pointer transition-colors">Industry Trends</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-black text-white mb-8 uppercase tracking-widest text-sm">Resources</h4>
+              <ul className="space-y-4 font-bold">
+                <li className="hover:text-accent-primary cursor-pointer transition-colors">Documentation</li>
+                <li className="hover:text-accent-primary cursor-pointer transition-colors">AI Mentor Support</li>
+                <li className="hover:text-accent-primary cursor-pointer transition-colors">API for Schools</li>
+                <li className="hover:text-accent-primary cursor-pointer transition-colors">Partner Dashboard</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-20 flex flex-col md:flex-row justify-between items-center gap-6 text-sm opacity-60 font-bold border-t border-white/5 pt-10">
+            <span>© 2026 CareerPath AI Terminal. All rights reserved.</span>
+            <div className="flex gap-10">
+              <span>Privacy Protocol</span>
+              <span>Terms of Intelligence</span>
+              <span>Hacker Integrity</span>
+            </div>
+          </div>
+        </footer>
       </div>
     );
   };
@@ -484,5 +682,24 @@ function App() {
     </div>
   );
 }
+
+const Stars = ({ className, size }: { className?: string, size?: number }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size || 24}
+    height={size || 24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M12 3l1.91 5.81L21 9l-4.24 3.81L18.09 21 12 17.27 5.91 21 7.24 12.81 3 9l7.09-.19L12 3z" />
+    <path d="M5 3l.64 1.94L7 5.5l-1.36.56L5 8l-.64-1.94L3 5.5l1.36-.56L5 3z" />
+    <path d="M19 3l.64 1.94L21 5.5l-1.36.56L19 8l-.64-1.94L17 5.5l1.36-.56L19 3z" />
+  </svg>
+);
 
 export default App;

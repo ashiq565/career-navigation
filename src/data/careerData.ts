@@ -20,6 +20,10 @@ export const CAREER_PATHS: Record<CareerPathType, { label: string, description: 
     'cloud-computing': {
         label: 'Cloud Computing',
         description: 'Manage and scale infrastructure in the cloud.'
+    },
+    'product-manager': {
+        label: 'Product Manager',
+        description: 'Bridges the gap between technical, business, and user needs.'
     }
 };
 
@@ -45,37 +49,47 @@ export const QUESTIONS_BY_PATH: Record<CareerPathType, AssessmentQuestion[]> = {
         { id: 3, question: "What is a 'Tensor'?", options: ["Multi-dimensional array", "Encryption key", "Hardware component", "Code editor"], correctAnswer: 0, skillMapped: "Deep Learning" }
     ],
     'cloud-computing': [
-        { id: 1, question: "What is 'SaaS'?", options: ["Servers as a Service", "Software as a Service", "System as a Service", "Security as a Service"], correctAnswer: 1, skillMapped: "Cloud Models" },
+        { id: 1, question: "What is 'SaaS'?", options: ["Software as a Service", "Servers as a Service", "System as a Service", "Security as a Service"], correctAnswer: 0, skillMapped: "Cloud Models" },
         { id: 2, question: "Which service is used for auto-scaling on AWS?", options: ["S3", "EC2 Auto Scaling", "Lambda", "IAM"], correctAnswer: 1, skillMapped: "Infrastructure" },
         { id: 3, question: "What is the primary benefit of Serverless computing?", options: ["Fixed costs", "No hardware management", "Slower performance", "Manual scaling"], correctAnswer: 1, skillMapped: "Modern Architectures" }
+    ],
+    'product-manager': [
+        { id: 1, question: "What defines a 'Minimum Viable Product' (MVP)?", options: ["The final version of a product", "Smallest version with enough features to satisfy customers", "A prototype for testing", "A product with no features"], correctAnswer: 1, skillMapped: "Product Strategy" },
+        { id: 2, question: "What is the purpose of a Product Roadmap?", options: ["To track bug reports", "To show the visual design", "To communicate the strategic direction", "To manage daily tasks"], correctAnswer: 2, skillMapped: "Planning" },
+        { id: 3, question: "What does KPI stand for?", options: ["Keep People Interested", "Key Performance Indicator", "Key Product Insight", "Knowledge Performance Index"], correctAnswer: 1, skillMapped: "Analytics" }
     ]
 };
 
 export const ROADMAPS: Record<CareerPathType, RoadmapStep[]> = {
     'software-dev': [
-        { title: "Fundamentals", description: "Algorithm basics and HTML/CSS/JS", status: "completed", technologies: ["Logic", "Basic Frontend"] },
-        { title: "Adv. Programming", description: "Mastering React and Data Structures", status: "current", technologies: ["React", "TypeScript", "DS&A"] },
-        { title: "System Design", description: "Scalability and Architecture", status: "locked", technologies: ["Distributed Systems", "Scaling"] }
+        { title: "Fundamentals", description: "Algorithm basics and HTML/CSS/JS", status: "completed", technologies: ["Logic", "Basic Frontend"], projects: ["Personal Portfolio", "To-Do App"] },
+        { title: "Adv. Programming", description: "Mastering React and Data Structures", status: "current", technologies: ["React", "TypeScript", "DS&A"], projects: ["E-commerce App", "Social Media Clone"] },
+        { title: "System Design", description: "Scalability and Architecture", status: "locked", technologies: ["Distributed Systems", "Scaling"], projects: ["Real-time Chatting App", "Video Streaming Platform"] }
     ],
     'data-science': [
-        { title: "Math & Stats", description: "Probability and Linear Algebra", status: "completed", technologies: ["Calculus", "Probability"] },
-        { title: "Analysis Tools", description: "Python for Data Analysis", status: "current", technologies: ["Pandas", "Matplotlib", "SQL"] },
-        { title: "Predictive Models", description: "Applied Machine Learning", status: "locked", technologies: ["Scikit-Learn", "Deep Learning"] }
+        { title: "Math & Stats", description: "Probability and Linear Algebra", status: "completed", technologies: ["Calculus", "Probability"], projects: ["Statistical Data Analysis"] },
+        { title: "Analysis Tools", description: "Python for Data Analysis", status: "current", technologies: ["Pandas", "Matplotlib", "SQL"], projects: ["Stock Market Analysis", "Credit Card Fraud Detection"] },
+        { title: "Predictive Models", description: "Applied Machine Learning", status: "locked", technologies: ["Scikit-Learn", "Deep Learning"], projects: ["House Price Prediction", "Sentiment Analysis Model"] }
     ],
     'cybersecurity': [
-        { title: "Networking", description: "TCP/IP and OS fundamentals", status: "completed", technologies: ["Linux", "Protocols"] },
-        { title: "Security Ops", description: "Threat detection and firewalls", status: "current", technologies: ["SIEM", "Pentesting"] },
-        { title: "Governance", description: "Risk Management and Compliance", status: "locked", technologies: ["ISO 27001", "GDPR"] }
+        { title: "Networking", description: "TCP/IP and OS fundamentals", status: "completed", technologies: ["Linux", "Protocols"], projects: ["Network Scanning Project"] },
+        { title: "Security Ops", description: "Threat detection and firewalls", status: "current", technologies: ["SIEM", "Pentesting"], projects: ["Vulnerability Assessment", "Malware Analysis Lab"] },
+        { title: "Governance", description: "Risk Management and Compliance", status: "locked", technologies: ["ISO 27001", "GDPR"], projects: ["Security Compliance Audit Mockup"] }
     ],
     'ai-ml': [
-        { title: "Python/Math", description: "Python and Matrix Algebra", status: "completed", technologies: ["NumPy", "Linear Algebra"] },
-        { title: "Core ML", description: "Regression and SVMs", status: "current", technologies: ["Supervised ML", "Feature Eng."] },
-        { title: "Neural Networks", description: "Deep Learning and Transformers", status: "locked", technologies: ["PyTorch", "LLMs"] }
+        { title: "Python/Math", description: "Python and Matrix Algebra", status: "completed", technologies: ["NumPy", "Linear Algebra"], projects: ["Simple Equation Solver"] },
+        { title: "Core ML", description: "Regression and SVMs", status: "current", technologies: ["Supervised ML", "Feature Eng."], projects: ["Customer Churn Prediction", "Spam Email Detector"] },
+        { title: "Neural Networks", description: "Deep Learning and Transformers", status: "locked", technologies: ["PyTorch", "LLMs"], projects: ["Image Classification with CNNs", "NLP Language Translator"] }
     ],
     'cloud-computing': [
-        { title: "IT Foundations", description: "Virtualization and OS basics", status: "completed", technologies: ["Ubuntu", "Docker"] },
-        { title: "Cloud Platforms", description: "AWS/Azure/GCP Essentials", status: "current", technologies: ["IAM", "VPC", "EC2"] },
-        { title: "DevOps/SRE", description: "CI/CD and Infrastructure as Code", status: "locked", technologies: ["Terraform", "Kubernetes"] }
+        { title: "IT Foundations", description: "Virtualization and OS basics", status: "completed", technologies: ["Ubuntu", "Docker"], projects: ["Containerized Web App"] },
+        { title: "Cloud Platforms", description: "AWS/Azure/GCP Essentials", status: "current", technologies: ["IAM", "VPC", "EC2"], projects: ["Serverless Function Setup", "Auto-scaling Infrastructure"] },
+        { title: "DevOps/SRE", description: "CI/CD and Infrastructure as Code", status: "locked", technologies: ["Terraform", "Kubernetes"], projects: ["Full CI/CD Pipeline", "Kubernetes Cluster Management"] }
+    ],
+    'product-manager': [
+        { title: "Product Basics", description: "Lifecycle and Agile fundamentals", status: "completed", technologies: ["Agile/Scrum", "Market Res."], projects: ["Product Breakdown Report"] },
+        { title: "User Research", description: "UX and Customer Discovery", status: "current", technologies: ["Jira", "User Interviews", "Metrics"], projects: ["Feature Prioritization Sheet", "UX Improvement Audit"] },
+        { title: "Strategy/Vision", description: "Monetization and roadmap scaling", status: "locked", technologies: ["GTM Strategy", "Financial Modeling"], projects: ["Full Product Roadmap Pitch", "Competitive Analysis Report"] }
     ]
 };
 
