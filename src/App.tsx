@@ -156,19 +156,39 @@ function App() {
                 {(Object.entries(CAREER_PATHS) as [CareerPathType, any][]).map(([key, info]) => (
                   <button
                     key={key}
-                    onClick={() => setGoal(key)}
-                    className={`btn text-left justify-start gap-3 p-4 border transition-all ${goal === key ? 'border-accent-primary bg-accent-primary/10 shadow-lg' : 'border-white/5 bg-white/5 opacity-70 hover:opacity-100'}`}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setGoal(key);
+                    }}
+                    className={`btn text-left justify-start gap-4 p-5 border-2 transition-all duration-300 rounded-[2rem] w-full relative overflow-hidden group ${goal === key
+                        ? 'border-accent-primary bg-accent-primary/20 shadow-[0_0_30px_rgba(56,189,248,0.3)] ring-2 ring-accent-primary/50'
+                        : 'border-white/5 bg-white/5 opacity-80 hover:opacity-100 hover:bg-white/10 hover:border-white/20'
+                      }`}
                   >
-                    {key === 'software-dev' && <Rocket size={18} />}
-                    {key === 'data-science' && <Briefcase size={18} />}
-                    {key === 'cybersecurity' && <ShieldCheck size={18} />}
-                    {key === 'ai-ml' && <BrainCircuit size={18} />}
-                    {key === 'cloud-computing' && <Cloud size={18} />}
-                    <div className="flex flex-col">
-                      <span className="font-bold text-sm">{info.label}</span>
-                      <span className="text-[10px] opacity-60 line-clamp-1">{info.description}</span>
+                    <div className={`p-3 rounded-2xl transition-colors ${goal === key ? 'bg-accent-primary text-white' : 'bg-white/10 text-muted group-hover:bg-white/20'}`}>
+                      {key === 'software-dev' && <Rocket size={20} />}
+                      {key === 'data-science' && <Briefcase size={20} />}
+                      {key === 'cybersecurity' && <ShieldCheck size={20} />}
+                      {key === 'ai-ml' && <BrainCircuit size={20} />}
+                      {key === 'cloud-computing' && <Cloud size={20} />}
                     </div>
+                    <div className="flex flex-col">
+                      <span className={`font-bold text-lg leading-tight transition-colors ${goal === key ? 'text-accent-primary' : 'text-main'}`}>{info.label}</span>
+                      <span className="text-xs text-muted mt-1 opacity-80">{info.description}</span>
+                    </div>
+                    {goal === key && (
+                      <motion.div
+                        layoutId="active-indicator"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-accent-primary"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                      >
+                        <CheckCircle2 size={24} />
+                      </motion.div>
+                    )}
                   </button>
+
                 ))}
               </div>
             </motion.div>
@@ -217,12 +237,14 @@ function App() {
               {question.options.map((option, idx) => (
                 <button
                   key={idx}
+                  type="button"
                   onClick={() => handleAnswer(idx)}
-                  className="btn btn-secondary w-full text-left justify-start p-4 hover:border-accent-primary transition-colors group"
+                  className="btn btn-secondary w-full text-left justify-start p-6 rounded-[1.5rem] hover:border-accent-primary hover:bg-accent-primary/5 transition-all duration-300 group relative border-2 border-white/5"
                 >
-                  <span className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center mr-3 group-hover:bg-accent-primary group-hover:text-white transition-colors">{String.fromCharCode(65 + idx)}</span>
-                  {option}
+                  <span className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mr-4 group-hover:bg-accent-primary group-hover:text-white transition-all font-bold">{String.fromCharCode(65 + idx)}</span>
+                  <span className="text-lg font-medium">{option}</span>
                 </button>
+
               ))}
             </div>
           </motion.div>
