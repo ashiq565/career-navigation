@@ -45,7 +45,7 @@ import {
   Cell
 } from 'recharts';
 import type { CareerPathType, UserProfile, ResumeAnalysis, InterviewSession } from './types';
-import { CAREER_PATHS, QUESTIONS_BY_PATH, ROADMAPS, INDUSTRY_TRENDS } from './data/careerData';
+import { CAREER_PATHS, QUESTIONS_BY_PATH, ROADMAPS, INDUSTRY_TRENDS, JOBS, RESOURCE_LIBRARY, CAREER_COMPARISONS } from './data/careerData';
 import './index.css';
 
 // --- STYLES & VARIANTS ---
@@ -389,7 +389,7 @@ function App() {
                 </div>
 
                 {/* Trends Bar Chart */}
-                <div className="col-span-12 lg:col-span-8 card glass-panel">
+                <div className="col-span-12 lg:col-span-7 card glass-panel">
                   <div className="flex justify-between items-center mb-8">
                     <div>
                       <h3 className="text-xl font-bold flex items-center gap-2"><TrendingUp size={24} className="text-accent-tertiary" /> Market Intelligence</h3>
@@ -408,6 +408,55 @@ function App() {
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Live Jobs Feed */}
+                <div className="col-span-12 lg:col-span-5 card glass-panel bg-white/5 border-white/5 shadow-none">
+                  <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><Briefcase size={22} className="text-accent-primary" /> Hiring Now</h3>
+                  <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                    {JOBS.map(job => (
+                      <div key={job.id} className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-accent-primary/30 transition-all flex justify-between items-center group">
+                        <div>
+                          <div className="font-bold text-sm group-hover:text-accent-primary transition-colors">{job.title}</div>
+                          <div className="text-[10px] text-muted">{job.company} • {job.location}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-[10px] font-black text-accent-tertiary">{job.salary}</div>
+                          <div className="text-[8px] opacity-40 uppercase">{job.posted}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button className="btn btn-secondary w-full mt-6 py-2 text-xs">View All Postings <ExternalLink size={12} /></button>
+                </div>
+
+                {/* Career Comparison Tool */}
+                <div className="col-span-12 card glass-panel border-t-4 border-accent-secondary">
+                  <h3 className="text-2xl font-black mb-8 flex items-center gap-2"><Target size={28} className="text-accent-secondary" /> Opportunity Comparison</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    {CAREER_COMPARISONS.map(comp => (
+                      <div key={comp.path} className={`p-6 rounded-3xl border transition-all ${user.goal === comp.path ? 'bg-accent-secondary/10 border-accent-secondary shadow-lg' : 'bg-white/5 border-white/5 opacity-80 hover:opacity-100 hover:bg-white/10'}`}>
+                        <div className="text-[10px] uppercase font-black opacity-50 mb-4">{CAREER_PATHS[comp.path as CareerPathType].label}</div>
+                        <div className="text-2xl font-black mb-1">{comp.avgSalary}</div>
+                        <div className="text-[10px] text-muted mb-4">Avg. Global Salary</div>
+
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-end">
+                            <span className="text-[10px] font-bold text-muted uppercase">Difficulty</span>
+                            <span className="text-xs font-black">{comp.difficulty}/10</span>
+                          </div>
+                          <div className="h-1 w-full bg-white/5 rounded-full"><div className="h-full bg-accent-secondary" style={{ width: `${comp.difficulty * 10}%` }}></div></div>
+
+                          <div className="pt-4 border-t border-white/5">
+                            <div className="text-[10px] font-bold text-muted uppercase mb-2">Top Hiring</div>
+                            <div className="flex flex-wrap gap-1">
+                              {comp.topCompanies.map(c => <span key={c} className="px-2 py-0.5 rounded-lg bg-white/5 text-[8px] font-bold">{c}</span>)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </motion.div>
@@ -534,82 +583,59 @@ function App() {
 
             {activeTab === 'recommendations' && (
               <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-10">
-                <div className="bg-mesh opacity-20" />
                 <div className="flex flex-col md:flex-row justify-between items-end gap-6">
                   <div className="max-w-2xl">
-                    <h2 className="text-5xl font-black mb-2">Curated Bridge.</h2>
-                    <p className="text-xl text-muted">High-impact resources mapped to your current {user.experienceLevel} performance.</p>
+                    <h2 className="text-5xl font-black mb-2">Resource Library.</h2>
+                    <p className="text-xl text-muted">A searchable hub of 100+ curated resources for {CAREER_PATHS[user.goal].label}.</p>
                   </div>
                   <div className="flex gap-2">
-                    {['All', 'Courses', 'Projects', 'Documentation'].map(f => <button key={f} className="px-5 py-2 rounded-full border border-white/10 text-xs font-bold hover:bg-white/5">{f}</button>)}
+                    {['All', 'Courses', 'Projects', 'Documentation'].map(f => (
+                      <button key={f} className={`px-6 py-2 rounded-full border border-white/10 text-xs font-bold transition-all ${f === 'All' ? 'bg-accent-primary text-white border-accent-primary' : 'hover:bg-white/5'}`}>{f}</button>
+                    ))}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  <div className="card glass-panel group hover:-translate-y-2 transition-all p-8 border-t-8 border-accent-primary">
-                    <div className="flex justify-between mb-8">
-                      <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-accent-primary/20 transition-colors"><BookOpen size={28} className="text-accent-primary" /></div>
-                      <div className="text-right">
-                        <div className="text-[10px] font-black opacity-40 uppercase">Expert Course</div>
-                        <div className="text-main font-bold">98% Match</div>
+                  {RESOURCE_LIBRARY.map((res) => (
+                    <div key={res.id} className={`card glass-panel group hover:-translate-y-2 transition-all p-8 border-t-8 ${res.price === 'Free' ? 'border-status-success' : 'border-accent-primary'}`}>
+                      <div className="flex justify-between mb-8">
+                        <div className={`p-4 bg-white/5 rounded-2xl transition-colors ${res.price === 'Free' ? 'group-hover:bg-status-success/20' : 'group-hover:bg-accent-primary/20'}`}>
+                          {res.type === 'Course' ? <BookOpen size={28} className={res.price === 'Free' ? 'text-status-success' : 'text-accent-primary'} /> : <FileSearch size={28} className="text-accent-secondary" />}
+                        </div>
+                        <div className="text-right">
+                          <div className="text-[10px] font-black opacity-40 uppercase">{res.difficulty} {res.type}</div>
+                          <div className="text-main font-bold">{res.matchScore}% Quality</div>
+                        </div>
                       </div>
-                    </div>
-                    <h4 className="text-xl font-bold mb-4">Complete {CAREER_PATHS[user.goal].label} Masterclass</h4>
-                    <p className="text-sm text-muted line-clamp-2 mb-8">Deep dive into industry-standard practices and advanced architectural patterns used in modern production environments.</p>
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 text-xs text-muted"><Globe size={14} /> SkillBridge Premium</span>
-                      <button className="p-3 rounded-xl bg-white/5 hover:bg-white/10"><ExternalLink size={20} /></button>
-                    </div>
-                  </div>
+                      <h4 className="text-xl font-bold mb-2">{res.title}</h4>
+                      <div className="text-xs text-muted mb-6">{res.provider}</div>
 
-                  <div className="card glass-panel group hover:-translate-y-2 transition-all p-8 border-t-8 border-status-warning">
-                    <div className="flex justify-between mb-8">
-                      <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-status-warning/20 transition-colors"><Zap size={28} className="text-status-warning" /></div>
-                      <div className="text-right">
-                        <div className="text-[10px] font-black opacity-40 uppercase">High ROI Project</div>
-                        <div className="text-main font-bold">New Challenge</div>
+                      <div className="flex items-center justify-between mt-auto">
+                        <span className={`badge text-[10px] px-3 py-1 ${res.price === 'Free' ? 'badge-success' : 'badge-primary'}`}>{res.price}</span>
+                        <button className="p-3 rounded-xl bg-white/5 hover:bg-white/10 flex items-center gap-2 text-xs font-bold transition-colors">
+                          Access Material <ExternalLink size={14} />
+                        </button>
                       </div>
                     </div>
-                    <h4 className="text-xl font-bold mb-4">Real-world {user.goal === 'software-dev' ? 'E-commerce API' : 'Neural Classifier'}</h4>
-                    <p className="text-sm text-muted line-clamp-2 mb-8">Implement a fully functional system that solves real user problems. Great for demonstrating end-to-end expertise.</p>
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 text-xs text-muted"><Github size={14} /> Starter Template</span>
-                      <button className="btn btn-primary py-2 px-6 rounded-xl text-sm">Fork Project</button>
-                    </div>
-                  </div>
-
-                  <div className="card glass-panel group hover:-translate-y-2 transition-all p-8 border-t-8 border-accent-secondary">
-                    <div className="flex justify-between mb-8">
-                      <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-accent-secondary/20 transition-colors"><FileSearch size={28} className="text-accent-secondary" /></div>
-                      <div className="text-right">
-                        <div className="text-[10px] font-black opacity-40 uppercase">Technical Docs</div>
-                        <div className="text-main font-bold">Reference</div>
-                      </div>
-                    </div>
-                    <h4 className="text-xl font-bold mb-4">Core Architectural Patterns</h4>
-                    <p className="text-sm text-muted line-clamp-2 mb-8">Master the designs that define successful software products, from microservices to event-driven architectures.</p>
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 text-xs text-muted"><LayoutDashboard size={14} /> Official Documentation</span>
-                      <button className="p-3 rounded-xl bg-white/5 hover:bg-white/10"><ExternalLink size={20} /></button>
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
                 {/* AI Reasoner Footer */}
-                <div className="card glass-panel overflow-hidden relative p-12" style={{ borderLeft: '12px solid var(--accent-primary)', background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.1), transparent)' }}>
+                <div className="card glass-panel overflow-hidden relative p-12 mt-12" style={{ borderLeft: '12px solid var(--accent-primary)', background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.1), transparent)' }}>
                   <div className="absolute -top-10 -right-10 opacity-5"><BrainCircuit size={300} /></div>
                   <div className="flex items-start gap-10">
                     <div className="p-5 bg-accent-primary/20 rounded-3xl shrink-0 animate-float"><Stars size={40} className="text-accent-primary" /></div>
                     <div>
-                      <h3 className="text-3xl font-black mb-4">AI Reasoning Intelligence</h3>
+                      <h3 className="text-3xl font-black mb-4">AI Library Logic</h3>
                       <p className="text-xl text-muted leading-relaxed max-w-4xl">
-                        We analyzed <span className="text-main font-bold">14,000+ top-tier job descriptions</span> and found that roles in {CAREER_PATHS[user.goal].label} currently prioritize <span className="text-accent-primary font-black uppercase">System Versatility</span> over specific syntax. Our recommendations minimize your skill gap while maximizing your "Employability Index" by an estimated <span className="text-status-success font-black">45% within 12 weeks</span>.
+                        Our recommendation engine has prioritized <span className="text-main font-bold">Concept Stability</span>. We've filtered out hype-driven content to ensure you spend your time on resources that provide lasting value in the <span className="text-accent-primary font-black uppercase">{user.goal} ecosystem</span>.
                       </p>
                     </div>
                   </div>
                 </div>
               </motion.div>
             )}
+
           </AnimatePresence>
         </main>
 

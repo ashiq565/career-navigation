@@ -38,7 +38,28 @@ export interface LearningResource {
     type: 'Course' | 'Project' | 'Docs';
     difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
     matchScore: number;
+    url?: string;
+    price?: 'Free' | 'Paid';
 }
+
+export interface JobRole {
+    id: number;
+    title: string;
+    company: string;
+    location: string;
+    salary: string;
+    type: 'Remote' | 'On-site' | 'Hybrid';
+    posted: string;
+}
+
+export interface CareerComparison {
+    path: CareerPathType;
+    avgSalary: string;
+    difficulty: number; // 1-10
+    timeToMaster: string;
+    topCompanies: string[];
+}
+
 
 export interface ResumeAnalysis {
     score: number;

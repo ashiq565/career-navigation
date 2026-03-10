@@ -100,3 +100,27 @@ export const INDUSTRY_TRENDS = [
     { name: 'LLM Engineering', growth: '+310%', demand: 95 },
     { name: 'Edge Computing', growth: '+30%', demand: 75 }
 ];
+
+export const JOBS = [
+    { id: 1, title: "Senior AI Engineer", company: "Google", location: "Mountain View, CA", salary: "$180k - $250k", type: "Hybrid", posted: "2d ago" },
+    { id: 2, title: "Backend Developer", company: "Stripe", location: "Dublin, Ireland", salary: "€90k - €130k", type: "Remote", posted: "5h ago" },
+    { id: 3, title: "Cybersecurity Analyst", company: "CrowdStrike", location: "Austin, TX", salary: "$110k - $160k", type: "On-site", posted: "1d ago" },
+    { id: 4, title: "Data Scientist", company: "Meta", location: "London, UK", salary: "£85k - £140k", type: "Hybrid", posted: "3d ago" },
+    { id: 5, title: "Cloud Architect", company: "AWS", location: "Seattle, WA", salary: "$165k - $230k", type: "Remote", posted: "12h ago" }
+];
+
+export const RESOURCE_LIBRARY = [
+    { id: 1, title: "CS50: Introduction to Computer Science", provider: "Harvard / edX", type: "Course", difficulty: "Beginner", matchScore: 95, price: "Free", url: "https://edx.org" },
+    { id: 2, title: "Machine Learning Specialization", provider: "DeepLearning.AI", type: "Course", difficulty: "Intermediate", matchScore: 92, price: "Paid", url: "https://coursera.org" },
+    { id: 3, title: "AWS Certified Solutions Architect", provider: "Amazon Web Services", type: "Course", difficulty: "Advanced", matchScore: 88, price: "Paid", url: "https://aws.amazon.com" },
+    { id: 4, title: "The Pragmatic Programmer", provider: "O'Reilly Media", type: "Docs", difficulty: "Intermediate", matchScore: 90, price: "Paid", url: "https://oreilly.com" },
+    { id: 5, title: "React Documentation", provider: "Meta", type: "Docs", difficulty: "Beginner", matchScore: 100, price: "Free", url: "https://react.dev" }
+];
+
+export const CAREER_COMPARISONS = [
+    { path: 'software-dev', avgSalary: "$120k", difficulty: 6, timeToMaster: "1-2 Years", topCompanies: ["Apple", "Netflix", "Microsoft"] },
+    { path: 'data-science', avgSalary: "$135k", difficulty: 8, timeToMaster: "2-3 Years", topCompanies: ["Tesla", "Airbnb", "Spotify"] },
+    { path: 'ai-ml', avgSalary: "$160k", difficulty: 9, timeToMaster: "3-4 Years", topCompanies: ["OpenAI", "Deepmind", "NVIDIA"] },
+    { path: 'cybersecurity', avgSalary: "$115k", difficulty: 7, timeToMaster: "1-2 Years", topCompanies: ["Cisco", "Palo Alto", "IBM"] },
+    { path: 'cloud-computing', avgSalary: "$130k", difficulty: 6, timeToMaster: "1.5 Years", topCompanies: ["GCP", "Azure", "DigitalOcean"] }
+];
